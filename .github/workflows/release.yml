@@ -1,6 +1,5 @@
 name: auto release
 on:
-  push:
   schedule:
     - cron: '43 2 * * Wed'
 jobs:

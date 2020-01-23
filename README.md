@@ -4,8 +4,7 @@ geoip-country [![NPM version](https://badge.fury.io/js/geoip-country.svg)](https
 Less memory usage version of [geoip-lite](https://github.com/bluesmoon/node-geoip) by limiting to country information.
 This product includes GeoLite2 ipv4 and ipv6 country data which created by MaxMind, available from https://www.maxmind.com.
 
-**You should read this README and the LICENSE and EULA files carefully before deciding to use this product.**
-
+**You should read this README and the LICENSE and EULA files carefully before deciding to use this product.**<br>
 **After v4, LICENSE for the database was changed. If you need to use this product with previous LICENSE, please use v3.**
 
 

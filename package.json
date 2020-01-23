@@ -18,7 +18,9 @@
 		"lib/",
 		"data/",
 		"test/",
-		"scripts/"
+		"scripts/",
+		"LICENSE",
+		"EULA"
 	],
 	"main": "lib/geoip.js",
 	"repository": {
