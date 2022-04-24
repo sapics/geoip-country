@@ -15,7 +15,6 @@ fs.existsSync = fs.existsSync || path.existsSync;
 
 var async = require('async');
 var colors = require('colors');
-var glob = require('glob');
 var iconv = require('iconv-lite');
 var lazy = require('lazy');
 var rimraf = require('rimraf').sync;
@@ -580,6 +579,5 @@ async.eachSeries(databases, function(database, nextDatabase) {
 		console.log('Successfully Updated Databases from MaxMind.'.green);
 		if (process.argv[2] == 'debug') console.log('Notice: temporary files are not deleted for debug purposes.'.bold.yellow);
 		else setTimeout(function(){rimraf(tmpPath);}, 100);
-		process.exit(0);
 	}
 });
