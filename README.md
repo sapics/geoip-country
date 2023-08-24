@@ -1,5 +1,7 @@
 # geoip-country [![NPM version](https://badge.fury.io/js/geoip-country.svg)](https://badge.fury.io/js/geoip-country)
 
+!!! **The difference with original version is removed redundant "colors" package** !!!
+
 Less memory usage version of [geoip-lite](https://github.com/bluesmoon/node-geoip) by limiting to country information.
 This product includes GeoLite2 ipv4 and ipv6 country data which created by MaxMind, available from https://www.maxmind.com.
 The database of this product **updates weekly**.
