@@ -16,7 +16,7 @@ var series = process.env.npm_config_geoip_series || process.env.GEOIP_SERIES;
 var language = process.env.npm_config_geoip_language || process.env.GEOIP_LANGUAGE || 'en';
 var isDebug = process.argv.indexOf('debug') >= 0;
 var addFakeData = process.env.npm_config_geoip_fake_data || process.env.GEOIP_FAKE_DATA || false;
-var addFields = process.env.npm_config_geoip_add_fields || process.env.GEOIP_ADD_FIELDS;
+var unusedFields = process.env.npm_config_geoip_unused_fields || process.env.GEOIP_UNUSED_FIELDS;
 for(var i = 0; i < process.argv.length; ++i){
 	var arg = process.argv[i];
 	if(isDebug) console.log(arg)
@@ -34,17 +34,17 @@ for(var i = 0; i < process.argv.length; ++i){
 		language = arg.slice(arg.indexOf('=') + 1);
 	} else if(arg.indexOf('geoip_fake_data=') >= 0){
 		addFakeData = arg.slice(arg.indexOf('=') + 1) > 0;
-	} else if(arg.indexOf('geoip_add_fields=') >= 0){
-		addFields = arg.slice(arg.indexOf('=') + 1);
+	} else if(arg.indexOf('geoip_unused_fields=') >= 0){
+		unusedFields = arg.slice(arg.indexOf('=') + 1);
 	}
 }
 if(!series){
 	series = 'GeoLite2';
 }
-if(addFields){
-	addFields = addFields.split(',');
+if(unusedFields){
+	unusedFields = unusedFields.split(',');
 } else {
-	addFields = [];
+	unusedFields = [];
 }
 
 const fs = require('fs');
@@ -565,8 +565,8 @@ function postcodeDatabase(postcode){
 function processCityData(src, dest, cb) {
 	var isFirstLine = true;
 	var preLocId, preB, preEip = 0, preLat, preLon, prePostcode;
-	var addSize = utils.fieldsSize(addFields);
-	var ipv6Size = 20 + addSize, ipv4Size = 12 + addSize;
+	var unusedSize = utils.fieldsSize(unusedFields);
+	var ipv6Size = 35 - unusedSize, ipv4Size = 27 - unusedSize;
 	function processLine(line) {
 		if(isFirstLine){
 			isFirstLine = false;
@@ -653,19 +653,19 @@ function processCityData(src, dest, cb) {
 
 		if(isNew){
 			b.writeUInt32BE(locId>>>0, offset - 4);
-			if(addFields.includes('latitude')){
+			if(!unusedFields.includes('latitude')){
 				b.writeInt32BE(lat, offset);
 				offset += 4;
 			}
-			if(addFields.includes('longitude')){
+			if(!unusedFields.includes('longitude')){
 				b.writeInt32BE(lon, offset);
 				offset += 4;
 			}
-			if(addFields.includes('area')){
+			if(!unusedFields.includes('area')){
 				b.writeUInt16BE(area, offset);
 				offset += 2;
 			}
-			if(addFields.includes('postcode')){
+			if(!unusedFields.includes('postcode')){
 				b.writeUInt32BE(postcode[1], offset);
 				b.writeInt8(postcode[0], offset + 4);
 			}
