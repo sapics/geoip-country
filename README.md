@@ -12,7 +12,7 @@ The following tests were performed on Node.js v20 on a PC using SSD.
 
 | benchmark | database size | startup time | lookup time |
 | ---- | ---- | ---- |  ---- | 
-| geoip-country | 7 MB  | 13 ms | 1.23 μs/ip |
+| geoip-country | 7 MB  | 17 ms | 0.95 μs/ip |
 | geoip-lite    | 124MB | 52 ms | 2.37 μs/ip |
 
 
@@ -122,6 +122,23 @@ By setting the environmental variable `GEOLITE2_LICENSE_KEY`, you can update wit
 ```javascript
   geoip.updateDatabase(callback);
 ```
+
+## Fast lookup setting
+
+By setting CLI parameter `--geoip_fast_lookup=XX` or envirnment `GEOIP_FAST_LOOKUP=XX`, you can make faster lookup time, in exchange for slower startup time and increase memory usage.
+Default of `geoip_fast_lookup` is 12, 4 is minimum and 18 is maximum.
+
+| geoip_fast_lookup | increased memory usage | startup time | lookup time |
+| ---- | ---- | ---- |  ---- | 
+| 4 [min]        | 192 B  | 13 ms | 1.15 μs/ip |
+| 6              | 768 B  | 13 ms | 1.11 μs/ip |
+| 8              | 3 KB   | 13 ms | 1.07 μs/ip |
+| 10             | 12 KB  | 15 ms | 1.00 μs/ip |
+| 12 [default]   | 48 KB  | 17 ms | 0.95 μs/ip |
+| 14             | 192 KB | 19 ms | 0.91 μs/ip |
+| 16             | 768 KB | 22 ms | 0.87 μs/ip |
+| 18 [max]       | 3 MB   | 31 ms | 0.84 μs/ip |
+| 20 [cannot use]| 12 MB  | 59 ms | 0.87 μs/ip |
 
 
 ## Use ip-location-db database
