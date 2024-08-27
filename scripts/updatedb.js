@@ -483,7 +483,6 @@ function processCountryDataIpLocationDb(src, fileName, srcUrl, cb) {
 			if(!datFile.write(b)){
 				rl.pause()
 			}
-			preCC = cc
 		}
 	}
 
