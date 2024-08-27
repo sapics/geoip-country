@@ -10,7 +10,8 @@
     "ipv6",
     "geolookup",
     "maxmind",
-    "geolite"
+    "geolite",
+    "country"
   ],
   "homepage": "https://github.com/sapics/geoip-country",
   "author": "sapics (https://github.com/sapics)",
@@ -46,7 +47,7 @@
   "devDependencies": {
     "dayjs": "^1.11.13",
     "geoip-lite": "^1.4.10",
-    "nodeunit-x": "^0.15.0"
+    "nodeunit-x": "^0.16.0"
   },
   "license": "MaxMind GeoLite2 License"
 }

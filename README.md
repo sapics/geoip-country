@@ -8,11 +8,12 @@ However, because the database contains city and coordinate information, etc., it
 `geoip-country` reduces memory usage and faster startup and faster lookup by restricting database to country from geolocation.
 Futhermore, we add the other information `capital`, `continent_name`, `languages`, etc., from v5.
 You can check the `test/benchmark.js` after updating `geoip-lite` database.
+The following tests were performed on Node.js v20 on a PC using SSD.
 
-| benchmark (node v20) | database size (MB)  | startup time (ms) | lookup time (ms/ip) |
+| benchmark | database size | startup time | lookup time |
 | ---- | ---- | ---- |  ---- | 
-| geoip-country | 7 MB  | 13 ms | 0.00123 ms/ip |
-| geoip-lite    | 124MB | 52 ms | 0.00237 ms/ip |
+| geoip-country | 7 MB  | 13 ms | 1.23 μs/ip |
+| geoip-lite    | 124MB | 52 ms | 2.37 μs/ip |
 
 
 This product includes GeoLite2 ipv4 and ipv6 country data created by [MaxMind](http://maxmind.com/).
@@ -125,9 +126,9 @@ By setting the environmental variable `GEOLITE2_LICENSE_KEY`, you can update wit
 
 ## Use ip-location-db database
 
-You can use [ip-location-db](https://github.com/sapics/ip-location-db) database with the environment variable `IP_LOCATION_DB` or CLI parameter `--ip_location_db=XXXXX`. For example, if you want to use `geolite2-geo-whois-asn-country`, you can update the database by executing `npm run updatedb --ip_location_db=geolite2-geo-whois-asn`.
+You can use [ip-location-db](https://github.com/sapics/ip-location-db) database with the environment variable `IP_LOCATION_DB` or CLI parameter `--ip_location_db=XXXXX`. For example, if you want to use `geolite2-geo-whois-asn-country` which supports wider ip than `geolite2-country`, you can update the database by executing `npm run updatedb --ip_location_db=geolite2-geo-whois-asn`.
 
-If you cannot use `geolite2` licence for your use-case, the licence issue can be circumvented by replacing the database in [ip-location-db](https://github.com/sapics/ip-location-db), as there is also a [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed) license database in [ip-location-db](https://github.com/sapics/ip-location-db).
+If you cannot use GeoLite2 licence for your use-case, the licence issue can be circumvented by replacing the database in [ip-location-db](https://github.com/sapics/ip-location-db), as there are also some Public licenced ([CC0](https://creativecommons.org/publicdomain/zero/1.0/deed) [PDDL](https://opendatacommons.org/licenses/pddl/1.0/)) databases in [ip-location-db](https://github.com/sapics/ip-location-db).
 
 
 ## Custom Directory for database files
