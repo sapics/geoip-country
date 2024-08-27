@@ -483,7 +483,6 @@ function processCountryDataIpLocationDb(src, fileName, srcUrl, cb) {
 			if(!datFile.write(b)){
 				rl.pause()
 			}
-			preCC = cc
 		}
 	}
 
@@ -749,7 +748,7 @@ function processCityDataNamesEn(src, dest, cb) {
 		}
 	}
 	var rl = readline.createInterface({
-		input: fs.createReadStream(tmpDataFile),	
+		input: fs.createReadStream(tmpDataFile),
 		crlfDelay: Infinity
 	})
 	rl.on('line', processLine)
@@ -830,7 +829,7 @@ function processCityDataNames(src, dest, cb) {
 
 	var datFile = fs.createWriteStream(dataFile, {highWaterMark: 1024 * 1024})
 	var rl = readline.createInterface({
-		input: fs.createReadStream(tmpDataFile, {highWaterMark: 1024 * 1024}),	
+		input: fs.createReadStream(tmpDataFile, {highWaterMark: 1024 * 1024}),
 		crlfDelay: Infinity
 	})
 	rl.on('line', processLine)
@@ -942,7 +941,7 @@ if(ip_location_db){
 
 	console.log('Fetching new databases from MaxMind...')
 	console.log('Storing files at ' + dataPath)
-	
+
 	async.eachSeries(databases, function(database, nextDatabase) {
 		if(isDebug){
 			async.seq(processData)(database, nextDatabase)
