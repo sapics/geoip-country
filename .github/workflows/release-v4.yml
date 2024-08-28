@@ -20,9 +20,11 @@ jobs:
       - name: install dependencies
         run: npm i
       - name: update
-        run: npm run-script updatedb
+        run: npm run updatedb
         env:
           GEOLITE2_LICENSE_KEY: ${{secrets.GEOLITE2_LICENSE_KEY}}
+      - name: update-package
+        run: npm run update-package
       - name: test
         run: npm run test
       - name: commit
