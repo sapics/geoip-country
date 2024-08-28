@@ -22,9 +22,9 @@ for(var i = 0; i < process.argv.length; ++i){
 	if(isDebug) console.log(arg)
 	if(arg.indexOf('license_key=') >= 0 && !license_key){
 		license_key = arg.slice(arg.indexOf('=') + 1)
-	} else if(arg.indexOf('geoip_datadir=') >= 0 && !geodatadir){
+	} else if((arg.indexOf('geoip_datadir=') >= 0 || arg.indexOf('geodatadir=') >= 0) && !geodatadir){
 		geodatadir = arg.slice(arg.indexOf('=') + 1)
-	} else if(arg.indexOf('geoip_tmpdatadir=') >= 0 && !tmpdatadir){
+	} else if((arg.indexOf('geoip_tmpdatadir=') >= 0 || arg.indexOf('geotmpdatadir=') >= 0) && !tmpdatadir){
 		tmpdatadir = arg.slice(arg.indexOf('=') + 1)
 	} else if(arg.indexOf('ip_location_db=') >= 0) {
 		ip_location_db = arg.slice(arg.indexOf('=') + 1).replace('-country', '')
@@ -38,6 +38,7 @@ for(var i = 0; i < process.argv.length; ++i){
 		unusedFields = arg.slice(arg.indexOf('=') + 1)
 	}
 }
+
 if(!series){
 	series = 'GeoLite2'
 }
@@ -52,7 +53,7 @@ const https = require('https')
 const path = require('path')
 const url = require('url')
 
-const isCountry = require('../package.json').name.indexOf('country') > 0
+const isCountry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'))).name.includes('country')
 const async = require('async')
 const readline = require('readline')
 const yauzl = require('yauzl')
@@ -86,6 +87,7 @@ if(tmpdatadir){
 } else {
 	tmpPath = path.resolve(__dirname, '..', 'tmp')
 }
+
 var countryLookup = {}
 var cityLookup = {}
 var databases = [
@@ -352,71 +354,68 @@ function processCountryData(src, dest, cb) {
 		var cc = countryLookup[fields[1]]
 		var b
 		var bsz
-		var i, isNew = false
-		if(cc){
-			if (fields[0].match(/:/)) {
-				// IPv6
-				bsz = 18
-				rngip = new Address6(fields[0])
-				sip = utils.aton6(rngip.startAddress().correctForm())
-				eip = utils.aton6(rngip.endAddress().correctForm())
+		var isNew = false
+		if(!cc || cc.length !== 2) return;
+		if (fields[0].includes(':')) {
+			// IPv6
+			bsz = 18
+			rngip = new Address6(fields[0])
+			sip = utils.aton6(rngip.startAddress().correctForm())
+			eip = utils.aton6(rngip.endAddress().correctForm())
 
-				if(isDebug && preEip){
-					if(preEip === sip) {
-						console.log('same ipv6 country range!!!')
-					}
+			if(isDebug && preEip){
+				if(preEip === sip) {
+					console.log('same ipv6 country range!!!')
 				}
+			}
 
-				if (cc === preCC && !addFakeData) {
-					if(preEip + 1n !== sip) {
-						preCC = null
-					}
-				}
-
-				if (cc !== preCC) {
-					isNew = true
-					b = Buffer.alloc(bsz)
-					b.fill(0)
-					b.writeBigUInt64BE(sip)
-				} else {
-					b = preB
-				}
-				b.writeBigUInt64BE(eip, 8)
-
-			} else {
-				// IPv4
-				bsz = 10
-
-				rngip = new Address4(fields[0])
-				sip = parseInt(rngip.startAddress().bigInteger(),10)
-				eip = parseInt(rngip.endAddress().bigInteger(),10)
-
-				if (preEip + 1 !== sip && !addFakeData) {
+			if (cc === preCC && !addFakeData) {
+				if(preEip + 1n !== sip) {
 					preCC = null
 				}
-				if (cc !== preCC) {
-					isNew = true
-					b = Buffer.alloc(bsz)
-					b.fill(0)
-					b.writeUInt32BE(sip, 0)
-					b.writeUInt32BE(eip, 4)
-				}	else {
-					preB.writeUInt32BE(eip, 4)
-				}
 			}
 
-			if(isNew){
-				if(preB){
-					if(!datFile.write(preB)){
-						rl.pause()
-					}
-				}
-				b.write(cc, bsz - 2)
-				preB = b
+			if (cc !== preCC) {
+				isNew = true
+				b = Buffer.alloc(bsz)
+				b.writeBigUInt64BE(sip)
+			} else {
+				b = preB
 			}
-			preCC = cc
-			preEip = eip
+			b.writeBigUInt64BE(eip, 8)
+
+		} else {
+			// IPv4
+			bsz = 10
+
+			rngip = new Address4(fields[0])
+			sip = parseInt(rngip.startAddress().bigInteger(),10)
+			eip = parseInt(rngip.endAddress().bigInteger(),10)
+
+			if (preEip + 1 !== sip && !addFakeData) {
+				preCC = null
+			}
+			if (cc !== preCC) {
+				isNew = true
+				b = Buffer.alloc(bsz)
+				b.writeUInt32BE(sip, 0)
+				b.writeUInt32BE(eip, 4)
+			}	else {
+				preB.writeUInt32BE(eip, 4)
+			}
 		}
+
+		if(isNew){
+			if(preB){
+				if(!datFile.write(preB)){
+					rl.pause()
+				}
+			}
+			b.write(cc, bsz - 2)
+			preB = b
+		}
+		preCC = cc
+		preEip = eip
 	}
 
 	var dataFile = path.join(dataPath, dest)
@@ -456,33 +455,30 @@ function processCountryDataIpLocationDb(src, fileName, srcUrl, cb) {
 		var cc = fields[2]
 		var b
 		var bsz
-		if(cc){
-			if (src.indexOf('ipv6') > 0) {
-				// IPv6
-				bsz = 18
-				sip = utils.aton6(fields[0])
-				eip = utils.aton6(fields[1])
+		if(!cc || cc.length !== 2) return;
+		if (src.indexOf('ipv6') > 0) {
+			// IPv6
+			bsz = 18
+			sip = utils.aton6(fields[0])
+			eip = utils.aton6(fields[1])
 
-				b = Buffer.alloc(bsz)
-				b.fill(0)
-				b.writeBigUInt64BE(sip)
-				b.writeBigUInt64BE(eip, 8)
-			} else {
-				// IPv4
-				bsz = 10
-				sip = utils.aton4(fields[0])
-				eip = utils.aton4(fields[1])
+			b = Buffer.alloc(bsz)
+			b.writeBigUInt64BE(sip)
+			b.writeBigUInt64BE(eip, 8)
+		} else {
+			// IPv4
+			bsz = 10
+			sip = utils.aton4(fields[0])
+			eip = utils.aton4(fields[1])
 
-				b = Buffer.alloc(bsz)
-				b.fill(0)
-				b.writeUInt32BE(sip, 0)
-				b.writeUInt32BE(eip, 4)
-			}
+			b = Buffer.alloc(bsz)
+			b.writeUInt32BE(sip, 0)
+			b.writeUInt32BE(eip, 4)
+		}
 
-			b.write(cc, bsz - 2)
-			if(!datFile.write(b)){
-				rl.pause()
-			}
+		b.write(cc, bsz - 2)
+		if(!datFile.write(b)){
+			rl.pause()
 		}
 	}
 
@@ -617,7 +613,6 @@ function processCityData(src, dest, cb) {
 			}
 			if(isNew){
 				b = Buffer.alloc(bsz)
-				b.fill(0)
 				b.writeBigUInt64BE(sip)
 				b.writeBigUInt64BE(eip, 8)
 				offset = 20
@@ -641,7 +636,6 @@ function processCityData(src, dest, cb) {
 				locId = parseInt(fields[1], 10)
 				locId = cityLookup[locId]
 				b = Buffer.alloc(bsz)
-				b.fill(0)
 				b.writeUInt32BE(sip>>>0, 0); // ip start [4 bytes]
 				b.writeUInt32BE(eip>>>0, 4); // ip end [4 bytes]
 				offset = 12
@@ -799,7 +793,6 @@ function processCityDataNames(src, dest, cb) {
 		}
 
 		b = Buffer.alloc(sz)
-		b.fill(0)
 		b.write(cc, 0);//country code [2 bytes]
 		if(subIndexes.length){
 			b.writeUInt16BE(subIndexes[0], 2);//subdivision code index[2 bytes]
