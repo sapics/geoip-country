@@ -1,3 +1,7 @@
+> [!CAUTION]
+> This repository would not maintaine any more.
+> We recommend to use new library [ip-location-api](https://github.com/sapics/ip-location-api) which has faster and customizable system, we created from scratch.
+
 # geoip-country [![NPM version](https://badge.fury.io/js/geoip-country.svg)](https://badge.fury.io/js/geoip-country)
 
 A native nodejs API to get country information from ip address.
