@@ -17,6 +17,7 @@ var language = process.env.npm_config_geoip_language || process.env.GEOIP_LANGUA
 var isDebug = process.argv.indexOf('debug') >= 0
 var addFakeData = process.env.npm_config_geoip_fake_data || process.env.GEOIP_FAKE_DATA || false
 var unusedFields = process.env.npm_config_geoip_unused_fields || process.env.GEOIP_UNUSED_FIELDS
+var useRedist = process.env.npm_config_geoip_use_redist || process.env.GEOIP_USE_REDIST || false
 for(var i = 0; i < process.argv.length; ++i){
 	var arg = process.argv[i]
 	if(isDebug) console.log(arg)
@@ -177,6 +178,7 @@ function CSVtoArray(text) {
 	return a
 }
 
+var RedistDownloadUrl = 'https://raw.githubusercontent.com/sapics/node-geolite2-redist/master/redist/'
 function downloadDatabase(database, cb) {
 	var downloadUrl, fileName
 	if(typeof database === 'string') {
@@ -184,8 +186,12 @@ function downloadDatabase(database, cb) {
 		downloadUrl = database
 		fileName = path.basename(downloadUrl)
 	} else {
-		// for maxmind
-		downloadUrl = download_server + '?edition_id=' + database.edition + '&suffix=' + database.suffix + "&license_key=" + encodeURIComponent(license_key)
+		if(useRedist){
+			downloadUrl = RedistDownloadUrl + database.edition + '.' + database.suffix
+		} else {
+			// for maxmind
+			downloadUrl = download_server + '?edition_id=' + database.edition + '&suffix=' + database.suffix + "&license_key=" + encodeURIComponent(license_key)
+		}
 		fileName = database.edition + '.' + database.suffix
 		console.log('Fetching edition ' + database.edition + ' from ' + download_server)
 	}
@@ -927,8 +933,10 @@ if(ip_location_db){
 } else {
 	if(!isDebug){
 		if (!license_key || license_key === "true") {
-			console.log('No GeoLite2 License Key Provided, Please Provide Argument: `--license_key=`')
-			process.exit(1)
+			if(!useRedist){
+				console.log('No GeoLite2 License Key Provided, Please Provide Argument: `--license_key=`')
+				process.exit(1)
+			}
 		}
 	}
 

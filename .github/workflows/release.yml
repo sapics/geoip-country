@@ -21,6 +21,7 @@ jobs:
         run: npm run-script updatedb
         env:
           GEOLITE2_LICENSE_KEY: ${{secrets.GEOLITE2_LICENSE_KEY}}
+          GEOIP_USE_REDIST: true
       - name: test
         run: npm run test
       - name: commit
