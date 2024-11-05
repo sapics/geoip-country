@@ -1,6 +1,6 @@
 {
   "name": "geoip-country",
-  "version": "5.0.202411012341",
+  "version": "5.0.202411052341",
   "description": "Quick country lookup from IP address",
   "keywords": [
     "geo",
