@@ -1,6 +1,6 @@
 {
 	"name": "geoip-country",
-	"version": "4.2.226",
+	"version": "4.2.227",
 	"description": "Less memory usage version of geoip-lite, by supporting only country lookup.",
 	"keywords": [
 		"geo",
