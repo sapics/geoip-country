@@ -1,7 +1,7 @@
 name: v4 auto database update
 on:
-  schedule:
-    - cron: '18 23 * * Tue,Fri'
+#  schedule:
+#    - cron: '18 23 * * Tue,Fri'
   workflow_dispatch:
 jobs:
   release:
